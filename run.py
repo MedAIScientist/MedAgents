@@ -9,20 +9,18 @@ from utils import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_name', default='chatgpt')
+    parser.add_argument('--model_name', default='gpt4o')
     parser.add_argument('--dataset_name', default='MedQA')
     parser.add_argument('--dataset_dir', default='./datasets/MedQA/')
     parser.add_argument('--start_pos', type=int, default=21)
     parser.add_argument('--end_pos', type=int, default=50)
     parser.add_argument('--output_files_folder', default='./outputs/MedQA')
-
     parser.add_argument('--method', type=str, default='syn_verif', choices=['syn_verif', 'syn_only', 'anal_only', 'base_direct', 'base_cot'])
     parser.add_argument('--max_attempt_vote', type=int, default=3)
     args = parser.parse_args()
 
     print(args)
 
-    ### get handler
     if args.model_name in ['instructgpt', 'newinstructgpt', 'chatgpt', 'gpt4']: # select the model
         handler = api_handler(args.model_name)
     else:
@@ -38,7 +36,6 @@ if __name__ == '__main__':
     ### set output_file_name
     exact_output_file = f"{args.output_files_folder}/{args.model_name}-{args.method}"
     #print(exact_output_file)
-
 
     input_prompt = {}
     for idx in tqdm.tqdm(test_range, desc=f"{args.start_pos} ~ {end_pos}"):

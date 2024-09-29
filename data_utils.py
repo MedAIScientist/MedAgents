@@ -3,6 +3,8 @@ import jsonlines
 import re
 from nltk.tokenize import sent_tokenize
 from rouge_score import rouge_scorer
+import nltk
+nltk.download('punkt')
 
 class MyDataset:
     def __init__(self, split, args, eval_only=False, traindata_obj=None):
@@ -125,7 +127,6 @@ class MyDataset:
             return correct_num / all_num
 
 
-
 def remove_incomplete_sentence(text):
     sentences = sent_tokenize(text)
     if len(sentences) > 1 and sentences[-1][-1] != '.':
@@ -149,21 +150,30 @@ def cleansing_analysis(analyses, domains, type):
 
 
 def cleansing_syn_report(question, options, raw_synthesized_report):
+    try:
+        # Intentar dividir el reporte en base a "Total Analysis:"
+        tmp = raw_synthesized_report.split("Total Analysis:")
+        if len(tmp) < 2:
+            raise ValueError("Formato incorrecto: No se encontró 'Total Analysis:'")
 
-    tmp = raw_synthesized_report.split("Total Analysis:")
-    total_analysis_text = tmp[1].strip()
-    if "Key Knowledge" in tmp:
-        key_knowledge_text = tmp[0].split("Key Knowledge:")[-1].strip()
-        final_syn_repo = f"Question: {question} \n" \
-            f"Options: {options} \n" \
-            f"Key Knowledge: {key_knowledge_text} \n" \
-            f"Total Analysis: {total_analysis_text} \n"
-    else:
-        final_syn_repo = f"Question: {question} \n" \
-            f"Options: {options} \n" \
-            f"Total Analysis: {total_analysis_text} \n"
-    
-    return final_syn_repo
+        total_analysis_text = tmp[1].strip()
+
+        # Verificar si "Key Knowledge" está presente
+        if "Key Knowledge" in tmp[0]:
+            key_knowledge_text = tmp[0].split("Key Knowledge:")[-1].strip()
+            final_syn_repo = f"Question: {question} \n" \
+                             f"Options: {options} \n" \
+                             f"Key Knowledge: {key_knowledge_text} \n" \
+                             f"Total Analysis: {total_analysis_text} \n"
+        else:
+            final_syn_repo = f"Question: {question} \n" \
+                             f"Options: {options} \n" \
+                             f"Total Analysis: {total_analysis_text} \n"
+
+        return final_syn_repo
+
+    except (IndexError, ValueError) as e:
+        return f"Error en el formato del reporte: {str(e)}"
 
 def cleansing_final_output(output):
     try:

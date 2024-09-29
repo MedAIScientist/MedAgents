@@ -4,5 +4,5 @@ python -u run.py \
 --dataset_dir ./datasets/MedQA/ \
 --start_pos 0 \
 --end_pos -1 \
---output_files_folder ./outputs/MedQA/ \
+--output_files_folder ./outputs/MedQA \
 --max_attempt_vote 3
