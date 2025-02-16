@@ -2,147 +2,144 @@
 NUM_QD = 5
 NUM_OD = 2
 
+# question domains
 def get_question_domains_prompt(question):
     question_domain_format = "Medical Field: " + " | ".join(["Field" + str(i) for i in range(NUM_QD)])
-    question_classifier = "Eres un experto médico especializado en clasificar un escenario médico en áreas específicas de la medicina."
-    prompt_get_question_domain = f"Debes completar los siguientes pasos:" \
-            f"1. Lee cuidadosamente el escenario médico presentado en la pregunta: '''{question}'''. \n" \
-            f"2. Basado en el escenario médico, clasifica la pregunta en cinco subcampos diferentes de la medicina. \n" \
-            f"3. Debes entregar el resultado en exactamente el mismo formato que '''{question_domain_format}'''."
+    question_classifier = "You are a medical expert who specializes in categorizing a specific medical scenario into specific areas of medicine."
+    prompt_get_question_domain = f"You need to complete the following steps:" \
+            f"1. Carefully read the medical scenario presented in the question: '''{question}'''. \n" \
+            f"2. Based on the medical scenario in it, classify the question into five different subfields of medicine. \n" \
+            f"3. You should output in exactly the same format as '''{question_domain_format}'''."
     return question_classifier, prompt_get_question_domain
 
+
+
 def get_question_analysis_prompt(question, question_domain):
-    question_analyzer = f"Eres un experto médico en el campo de {question_domain}. " \
-        f"Desde tu área de especialización, examinarás y diagnosticarás los síntomas presentados por los pacientes en escenarios médicos específicos."
-    prompt_get_question_analysis = f"Por favor, examina meticulosamente el escenario médico descrito en esta pregunta: '''{question}'''. " \
-                        f"Basándote en tu experiencia médica, interpreta la condición que se está describiendo. " \
-                        f"Posteriormente, identifica y resalta los aspectos del problema que consideres más alarmantes o relevantes."
+    question_analyzer = f"You are a medical expert in the domain of {question_domain}. " \
+        f"From your area of specialization, you will scrutinize and diagnose the symptoms presented by patients in specific medical scenarios."
+    prompt_get_question_analysis = f"Please meticulously examine the medical scenario outlined in this question: '''{question}'''." \
+                        f"Drawing upon your medical expertise, interpret the condition being depicted. " \
+                        f"Subsequently, identify and highlight the aspects of the issue that you find most alarming or noteworthy."
 
     return question_analyzer, prompt_get_question_analysis
 
-
 def get_options_domains_prompt(question, options):
-    options_domain_format = "Medical Field: " + " | ".join(["Field" + str(i) for i in range(NUM_OD)])
-    options_classifier = f"Como experto médico, posees la capacidad de identificar los dos campos de especialización más relevantes necesarios para abordar una pregunta de opción múltiple que encapsula un contexto médico específico."
-    prompt_get_options_domain = f"Debes completar los siguientes pasos:" \
-                f"1. Lee cuidadosamente el escenario médico presentado en la pregunta: '''{question}'''." \
-                f"2. Las opciones disponibles son: '''{options}'''. Esfuérzate por entender las conexiones fundamentales entre la pregunta y las opciones." \
-                f"3. Tu objetivo principal debe ser clasificar las opciones en dos subcampos distintos de la medicina. " \
-                f"Debes entregar el resultado en exactamente el mismo formato que '''{options_domain_format}'''."
+    options_domain_format =  "Medical Field: " + " | ".join(["Field" + str(i) for i in range(NUM_OD)])
+    options_classifier = f"As a medical expert, you possess the ability to discern the two most relevant fields of expertise needed to address a multiple-choice question encapsulating a specific medical context."
+    prompt_get_options_domain = f"You need to complete the following steps:" \
+                f"1. Carefully read the medical scenario presented in the question: '''{question}'''." \
+                f"2. The available options are: '''{options}'''. Strive to understand the fundamental connections between the question and the options." \
+                f"3. Your core aim should be to categorize the options into two distinct subfields of medicine. " \
+                f"You should output in exactly the same format as '''{options_domain_format}'''"
     return options_classifier, prompt_get_options_domain
 
 
-
 def get_options_analysis_prompt(question, options, op_domain, question_analysis):
-    option_analyzer = f"Eres un experto médico especializado en el campo de {op_domain}. " \
-                f"Eres hábil para comprender la relación entre las preguntas y las opciones en exámenes de opción múltiple, y para determinar su validez. " \
-                f"Tu tarea específica es analizar cada opción utilizando tu conocimiento médico especializado y evaluar su relevancia y corrección."
+    option_analyzer = f"You are a medical expert specialized in the {op_domain} domain. " \
+                f"You are adept at comprehending the nexus between questions and choices in multiple-choice exams and determining their validity. " \
+                f"Your task, in particular, is to analyze individual options with your expert medical knowledge and evaluate their relevancy and correctness."
 
-    prompt_get_options_analyses = f"Con respecto a la pregunta: '''{question}''', obtuvimos el análisis de cinco expertos de diversos campos. \n"
+    prompt_get_options_analyses = f"Regarding the question: '''{question}''', we procured the analysis of five experts from diverse domains. \n"
     for _domain, _analysis in question_analysis.items():
-        prompt_get_options_analyses += f"La evaluación del experto en {_domain} sugiere: {_analysis} \n"
-        prompt_get_options_analyses += f"Las siguientes son las opciones disponibles: '''{options}'''." \
-                    f"Revisando el análisis de la pregunta por parte del equipo de expertos, se te pide que comprendas la relación entre las opciones y la pregunta desde la perspectiva de tu respectivo campo, " \
-                    f"y analices cada opción individualmente para evaluar si es plausible o debe ser eliminada con base en la razón y la lógica. "\
-                    f"Presta especial atención a las diferencias entre las distintas opciones y justifica su existencia. " \
-                    f"Algunas de estas opciones pueden parecer correctas a primera vista, pero podrían ser engañosas en realidad."
+        prompt_get_options_analyses += f"The evaluation from the {_domain} expert suggests: {_analysis} \n"
+        prompt_get_options_analyses += f"The following are the options available: '''{options}'''." \
+                    f"Reviewing the question's analysis from the expert team, you're required to fathom the connection between the options and the question from the perspective of your respective domain, " \
+                    f"and scrutinize each option individually to assess whether it is plausible or should be eliminated based on reason and logic. "\
+                    f"Pay close attention to discerning the disparities among the different options and rationalize their existence. " \
+                    f"A handful of these options might seem right on the first glance but could potentially be misleading in reality."
     return option_analyzer, prompt_get_options_analyses
 
 
-
 def get_final_answer_prompt_analonly(question, options, question_analyses, option_analyses):
-    prompt = f"Pregunta: {question} \nOpciones: {options} \n" \
-        f"Respuesta: Vamos a resolver esto paso a paso para asegurarnos de tener la respuesta correcta. \n" \
-        f"Paso 1: Decodificar correctamente la pregunta. Contamos con un equipo de expertos que han realizado un análisis detallado de esta pregunta. " \
-        f"El equipo incluye cinco expertos de diferentes dominios médicos relacionados con el problema. \n"
+    prompt = f"Question: {question} \nOptions: {options} \n" \
+        f"Answer: Let's work this out in a step by step way to be sure we have the right answer. \n" \
+        f"Step 1: Decode the question properly. We have a team of experts who have done a detailed analysis of this question. " \
+        f"The team includes five experts from different medical domains related to the problem. \n"
     
     for _domain, _analysis in question_analyses.items():
-        prompt += f"La opinión de un experto en {_domain} sugiere: {_analysis} \n"
+        prompt += f"Insight from an expert in {_domain} suggests, {_analysis} \n"
     
-    prompt += f"Paso 2: Evalúa cada opción presentada individualmente, basándote tanto en los detalles del escenario del paciente como en tu conocimiento médico. " \
-            f"Presta especial atención a las diferencias entre las distintas opciones. " \
-            f"Algunas de estas opciones pueden parecer correctas a primera vista, pero podrían ser engañosas en realidad. " \
-            f"Contamos con análisis detallados de expertos en dos dominios. \n"
+    prompt += f"Step 2: Evaluate each presented option individually, based on both the specifics of the patient's scenario as well as your medical knowledge. " \
+            f"Pay close attention to discerning the disparities among the different options. " \
+            f"A handful of these options might seem right on the first glance but could potentially be misleading in reality. " \
+            f"We have detailed analyses from experts across two domains. \n"
     
     for _domain, _analysis in option_analyses.items():
-        prompt += f"La evaluación de un experto en {_domain} sugiere: {_analysis} \n"
-    
-    prompt += f"Paso 3: Basado en la comprensión obtenida de los pasos anteriores, selecciona la opción óptima para responder la pregunta. \n" \
-        f"Puntos a considerar: \n" \
-        f"1. Los análisis proporcionados deben guiarte hacia la respuesta correcta. \n" \
-        f"2. Cualquier opción que contenga información incorrecta no puede ser la respuesta correcta. \n" \
-        f"3. Por favor, responde solo con la letra de la opción seleccionada, como A, B, C, D o E, usando el siguiente formato: '''Option: [Letra de la Opción Seleccionada]'''. " \
-        f"Recuerda, necesitamos solo la letra, no el contenido completo de la opción."
+        prompt += f"Assessment from an expert in {_domain} suggests, {_analysis} \n"
+    prompt += f"Step 3: Based on the understanding gathered from the above steps, select the optimal choice to answer the question. \n" \
+        f"Points to note: \n" \
+        f"1. The analyses provided should guide you towards the correct response. \n" \
+        f"2. Any option containing incorrect information inherently cannot be the correct choice. \n" \
+        f"3. Please respond only with the selected option's letter, like A, B, C, D, or E, using the following format: '''Option: [Selected Option's Letter]'''. " \
+        f"Remember, it's the letter we need, not the full content of the option."
 
     return prompt
-
 
 def get_final_answer_prompt_wsyn(syn_report):
-    prompt = f"A continuación, se presenta un informe sintetizado: {syn_report} \n" \
-        f"Con base en el informe anterior, selecciona la opción óptima para responder la pregunta. \n" \
-        f"Puntos a considerar: \n" \
-        f"1. Los análisis proporcionados deben guiarte hacia la respuesta correcta. \n" \
-        f"2. Cualquier opción que contenga información incorrecta no puede ser la opción correcta. \n" \
-        f"3. Por favor, responde solo con la letra de la opción seleccionada, como A, B, C, D o E, usando el siguiente formato: '''Option: [Letra de la Opción Seleccionada]'''. " \
-        f"Recuerda, necesitamos solo la letra, no el contenido completo de la opción."
+    prompt = f"Here is a synthesized report: {syn_report} \n" \
+        f"Based on the above report, select the optimal choice to answer the question. \n" \
+        f"Points to note: \n" \
+        f"1. The analyses provided should guide you towards the correct response. \n" \
+        f"2. Any option containing incorrect information inherently cannot be the correct choice. \n" \
+        f"3. Please respond only with the selected option's letter, like A, B, C, D, or E, using the following format: '''Option: [Selected Option's Letter]'''. " \
+        f"Remember, it's the letter we need, not the full content of the option."
     return prompt
 
+
 def get_direct_prompt(question, options):
-    prompt = f"Pregunta: {question} \n" \
-        f"Opciones: {options} \n" \
-        f"Por favor, responde solo con la letra de la opción seleccionada, como A, B, C, D o E, usando el siguiente formato: '''Option: [Letra de la Opción Seleccionada]'''."
+    prompt = f"Question: {question} \n" \
+        f"Options: {options} \n" \
+        f"Please respond only with the selected option's letter, like A, B, C, D, or E, using the following format: '''Option: [Selected Option's Letter]'''."
     return prompt
 
 def get_cot_prompt(question, options):
-    cot_format = f"Pensamiento: [los pensamientos paso a paso] \n" \
-                f"Respuesta: [Letra de la Opción Seleccionada (como A, B, C, D o E)] \n"
-    prompt = f"Pregunta: {question} \n" \
-        f"Opciones: {options} \n" \
-        f"Respuesta: Vamos a resolver esto paso a paso para asegurarnos de tener la respuesta correcta. " \
-        f"Debes entregar el resultado exactamente en el siguiente formato: '''{cot_format}'''"
+    cot_format = f"Thought: [the step-by-step thoughts] \n" \
+                f"Answer: [Selected Option's Letter (like A, B, C, D, or E)] \n"
+    prompt = f"Question: {question} \n" \
+        f"Options: {options} \n" \
+        f"Answer: Let's work this out in a step by step way to be sure we have the right answer. " \
+        f"You should output in exactly the same format as '''{cot_format}'''"
     return prompt
 
 
-
 def get_synthesized_report_prompt(question_analyses, option_analyses):
-    synthesizer = "Eres un tomador de decisiones médicas experto en resumir y sintetizar informes basados en la opinión de múltiples expertos de diferentes dominios."
+    synthesizer = "You are a medical decision maker who excels at summarizing and synthesizing based on multiple experts from various domain experts."
 
-    syn_report_format = f"Key Knowledge: [conocimiento clave extraído] \n" \
-                        f"Total Analysis: [análisis sintetizado] \n"
-    prompt = f"A continuación, se presentan algunos informes de diferentes expertos médicos de diversos dominios.\n"
-    prompt += f"Debes completar los siguientes pasos:" \
-              f"1. Considera cuidadosamente y de manera integral los siguientes informes." \
-              f"2. Extrae el conocimiento clave de los informes proporcionados. " \
-              f"3. Deriva un análisis comprensivo y resumido basado en el conocimiento." \
-              f"4. Tu objetivo final es elaborar un informe refinado y sintetizado basado en los informes anteriores." \
-              f"Debes entregar el resultado exactamente en el siguiente formato: '''{syn_report_format}'''"
+    syn_report_format = f"Key Knowledge: [extracted key knowledge] \n" \
+                f"Total Analysis: [synthesized analysis] \n"
+    prompt = f"Here are some reports from different medical domain experts.\n "
+    prompt += f"You need to complete the following steps:" \
+                f"1. Take careful and comprehensive consideration of the following reports." \
+                f"2. Extract key knowledge from the following reports. " \
+                f"3. Derive the comprehensive and summarized analysis based on the knowledge." \
+                f"4. Your ultimate goal is to derive a refined and synthesized report based on the following reports." \
+                f"You should output in exactly the same format as '''{syn_report_format}'''"
     prompt += question_analyses
     prompt += option_analyses
     
     return synthesizer, prompt
 
+
 def get_consensus_prompt(domain, syn_report):
-    voter = f"Eres un experto médico especializado en el campo de {domain}."
-    cons_prompt = f"A continuación, se presenta un informe médico: {syn_report} \n"\
-        f"Como experto médico especializado en {domain}, por favor, lee detenidamente el informe y decide si tus opiniones son consistentes con este informe." \
-        f"Por favor, responde solo con: [YES or NO]."
+    voter = f"You are a medical expert specialized in the {domain} domain."
+    cons_prompt = f"Here is a medical report: {syn_report} \n"\
+        f"As a medical expert specialized in {domain}, please carefully read the report and decide whether your opinions are consistent with this report." \
+        f"Please respond only with: [YES or NO]."
     return voter, cons_prompt
 
 
-
 def get_consensus_opinion_prompt(domain, syn_report):
-    opinion_prompt = f"A continuación, se presenta un informe médico: {syn_report} \n"\
-        f"Como experto médico especializado en {domain}, utiliza plenamente tu experiencia para proponer revisiones a este informe." \
-        f"Debes entregar el resultado exactamente en el siguiente formato: '''Revisions: [consejo de revisión propuesto] '''"
+    opinion_prompt = f"Here is a medical report: {syn_report} \n"\
+        f"As a medical expert specialized in {domain}, please make full use of your expertise to propose revisions to this report." \
+        f"You should output in exactly the same format as '''Revisions: [proposed revision advice] '''"
     return opinion_prompt
-
 
 
 #revision_prompt = get_revision_prompt(revision_advice)
 
 def get_revision_prompt(syn_report, revision_advice):
-    revision_prompt = f"A continuación, se presenta el informe original: {syn_report}\n\n"
+    revision_prompt = f"Here is the original report: {syn_report}\n\n"
     for domain, advice in revision_advice.items():
-        revision_prompt += f"Aquí tienes el consejo de un experto médico especializado en {domain}: {advice}.\n"
-    revision_prompt += f"Con base en los consejos anteriores, entrega el análisis revisado en el siguiente formato: '''Total Analysis: [análisis revisado] '''"
+        revision_prompt += f"Here is advice from a medical expert specialized in {domain}: {advice}.\n"
+    revision_prompt += f"Based on the above advice, output the revised analysis in exactly the same format as '''Total Analysis: [revised analysis] '''"
     return revision_prompt
