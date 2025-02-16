@@ -151,7 +151,7 @@ def cleansing_analysis(analyses, domains, type):
 
 def cleansing_syn_report(question, options, raw_synthesized_report):
     try:
-        # Intentar dividir el reporte en base a "Total Analysis:"
+       
         tmp = raw_synthesized_report.split("Total Analysis:")
         if len(tmp) < 2:
             raise ValueError("Formato incorrecto: No se encontró 'Total Analysis:'")
@@ -173,7 +173,7 @@ def cleansing_syn_report(question, options, raw_synthesized_report):
         return final_syn_repo
 
     except (IndexError, ValueError) as e:
-        return f"Error en el formato del reporte: {str(e)}"
+        return f"Format Error: {str(e)}"
 
 def cleansing_final_output(output):
     try:
